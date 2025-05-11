@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地学の基礎用語確認　1年　ジェネレーター</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .question h3 {
+            margin: 0 0 10px 0;
+        }
+        .question label {
+            display: block;
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 25px; /* space for the feedback indicator */
+        }
+        .question-options {
+            margin-top: 10px;
+        }
+        .answer {
+            display: none;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        button {
+            margin-top: 20px;
+        }
+        .feedback {
+            margin-top: 10px;
+            color: red;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.5em; /* 大きなフォントサイズ */
+        }
+        .feedback-indicator {
+            position: absolute;
+            left: 0;
+            width: 20px;
+            text-align: center;
+        }
+        .correct-option .feedback-indicator::after {
+            content: "〇";
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect-option .feedback-indicator::after {
+            content: "×";
+            color: red;
+            font-weight: bold;
+        }
+        .option-correct {
+            color: red;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>地学の基礎用語確認　1年　ジェネレーター</h1>
+    <div id="quiz"></div>
+    <button onclick="generateQuiz()">テストをリロード</button>
+    <button onclick="showAnswers()">答えを表示</button>
+    <div id="answers" class="answer"></div>
+    <div id="result" class="result"></div>
+
+    <script>
+        const questions = [
+  { "word": "マグマ", "japanese": "地下にある岩石が，高温でとけた物質" },
+  { "word": "火山噴出物", "japanese": "火山の噴火によって火口からふき出された，マグマがもとになってできた物質" },
+  { "word": "溶岩", "japanese": "マグマが火口から流れ出たものや，それが冷えて固まったもの" },
+  { "word": "鉱物", "japanese": "火山灰やマグマが冷えてできた岩石などにふくまれる，一定の化学組成をもつ物質" },
+  { "word": "火成岩", "japanese": "マグマが冷えて固まってできた岩石" },
+  { "word": "火山岩", "japanese": "マグマが地表や地表近くで急に冷やされてできた岩石" },
+  { "word": "斑状組織", "japanese": "火山岩のつくり" },
+  { "word": "石基", "japanese": "火山岩のつくりで，ひじょうに小さな鉱物の集まりやガラス質の部分" },
+  { "word": "斑晶", "japanese": "石基の中に散らばっている大きな鉱物の結晶の部分" },
+  { "word": "深成岩", "japanese": "マグマが地下深くでゆっくり冷えてできた岩石" },
+  { "word": "等粒状組織", "japanese": "深成岩のつくり" },
+  { "word": "震源", "japanese": "地震が発生したとき，地下の岩石の破壊が始まった点" },
+  { "word": "震央", "japanese": "震源の真上の地表の点" },
+  { "word": "津波", "japanese": "海底で地震が起こったときに発生し，大きな被害を起こすことがある波" },
+  { "word": "隆起", "japanese": "土地がもり上がること" },
+  { "word": "沈降", "japanese": "土地が沈むこと" },
+  { "word": "初期微動", "japanese": "地震のときのはじめの小さな揺れ" },
+  { "word": "P波", "japanese": "初期微動を引き起こす速い波" },
+  { "word": "主要動", "japanese": "初期微動のあとにくる大きな揺れ" },
+  { "word": "初期微動継続時間", "japanese": "P波とS波の到着時間の差" },
+  { "word": "震度", "japanese": "ある地点での，地震による揺れの大きさの程度" },
+  { "word": "マグニチュード", "japanese": "地震の規模" },
+  { "word": "風化", "japanese": "地表の岩石が，気温の変化や水のはたらきによってくずれていく現象" },
+  { "word": "侵食", "japanese": "岩石を削る風や流水のはたらき" },
+  { "word": "運搬", "japanese": "削られた土砂を下流に運ぶ流水のはたらき" },
+  { "word": "堆積", "japanese": "流水によって運ばれてきた土砂が積み重なること" },
+  { "word": "断層", "japanese": "大きな力によって地層が切れ，ずれることによってできたくいちがい" },
+  { "word": "しゅう曲", "japanese": "地層に大きな力がはたらき，押し曲げられたもの" },
+  { "word": "かぎ層", "japanese": "地層の広がりを知る手がかりとなる，特徴のある層" },
+  { "word": "堆積岩", "japanese": "れきや砂，泥などの堆積物が長い年月をかけて押し固められてできた岩石" },
+  { "word": "れき岩", "japanese": "直径が2mm以上の粒をふくむ堆積岩" },
+  { "word": "泥岩", "japanese": "直径が0.06mm以下の粒でできている堆積岩" },
+  { "word": "大きさ", "japanese": "れき岩，砂岩，泥岩を区別する粒のちがい" },
+  { "word": "石灰岩", "japanese": "生物の死がいなどが固まってできた岩石で，うすい塩酸をかけると二酸化炭素が発生する堆積岩" },
+  { "word": "チャート", "japanese": "生物の死がいなどが固まってできた岩石で，塩酸をかけても気体は発生せず，石灰岩よりかたい堆積岩" },
+  { "word": "凝灰岩", "japanese": "火山灰などが固まってできた堆積岩" },
+  { "word": "示相化石", "japanese": "地層が堆積した当時の環境を推定できる化石" },
+  { "word": "ごく浅いあたたかい海", "japanese": "サンゴの化石をふくむ地層が堆積した場所" },
+  { "word": "示準化石", "japanese": "地層が堆積した年代を推定できる化石" },
+  { "word": "古生代", "japanese": "サンヨウチュウの化石が発見された地層の年代" },
+  { "word": "地質年代", "japanese": "古生代，新生代などの地球の歴史の時代区分" },
+  { "word": "プレート", "japanese": "地球の表面をおおっている，十数枚のかたい板" },
+  { "word": "海嶺", "japanese": "海のプレートがつくられる海底の大山脈" },
+  { "word": "海溝", "japanese": "プレートの境目に見られる，海底の溝状の地形" }
+];
+
+        let userAnswers = [];
+        let difficultyMap = {}; // 正答率の低い問題を記録
+        let answerStats = {}; // 各答えの正答率を記録
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function getRandomQuestions(count) {
+            const shuffled = [...questions];
+            shuffle(shuffled);
+
+            // 正答率の低い問題を2倍にする
+            const weightedQuestions = [];
+            shuffled.forEach(q => {
+                const difficultyWeight = difficultyMap[q.word] || 1;
+                for (let i = 0; i < difficultyWeight; i++) {
+                    weightedQuestions.push(q);
+                }
+            });
+            shuffle(weightedQuestions);
+            return weightedQuestions.slice(0, count);
+        }
+
+        function generateOptions(correctAnswer, allOptions, optionType) {
+            const options = [];
+            const optionsCount = 4;
+
+            while (options.length < optionsCount - 1) {
+                const randomIndex = Math.floor(Math.random() * allOptions.length);
+                const option = optionType === 'japanese' ? allOptions[randomIndex].word : allOptions[randomIndex].japanese;
+                if (option !== correctAnswer && !options.includes(option)) {
+                    options.push(option);
+                }
+            }
+
+            options.push(correctAnswer);
+            shuffle(options);
+
+            return options;
+        }
+
+        function generateQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            const answersContainer = document.getElementById('answers');
+            const resultContainer = document.getElementById('result');
+            quizContainer.innerHTML = '';
+            answersContainer.innerHTML = ''; // Clear previous answers on reload
+            resultContainer.innerHTML = ''; // Clear result on reload
+            userAnswers = []; // Clear previous answers
+
+            const questionTypes = ['説明の答えを選ぶ', '名称の説明を選ぶ'];
+            const questionsPerType = 5; // 各タイプ5問
+            let quizHtml = '';
+
+            for (let i = 0; i < questionTypes.length; i++) {
+                const questionType = questionTypes[i];
+                const questionsList = getRandomQuestions(questionsPerType);
+
+                questionsList.forEach((q, index) => {
+                    let questionText, correctAnswer, optionType;
+                    if (questionType === '説明の答えを選ぶ') {
+                        questionText = `${q.japanese}`;
+                        correctAnswer = q.word;
+                        optionType = 'japanese';
+                    } else {
+                        questionText = `${q.word}　の説明もしくは、空欄に入れると完成する文章は？`;
+                        correctAnswer = q.japanese;
+                        optionType = 'english';
+                    }
+
+                    const options = generateOptions(correctAnswer, questions, optionType);
+
+                    quizHtml += `<div class="question">
+                                    <h3>問題 ${i * questionsPerType + index + 1}: ${questionType}</h3>
+                                    <div class="question-options">
+                                        <p>${questionText}</p>`;
+
+                    options.forEach(option => {
+                        quizHtml += `<label>
+                                        <span class="feedback-indicator"></span>
+                                        <input type="radio" name="q${i * questionsPerType + index + 1}" value="${option}"> ${option}
+                                      </label>`;
+                        
+                        // Track answer stats
+                        if (!answerStats[option]) {
+                            answerStats[option] = { total: 0, correct: 0 };
+                        }
+                        answerStats[option].total++;
+                    });
+
+                    quizHtml += `</div></div>`;
+
+                    userAnswers.push({ question: `${questionText}`, correctAnswer, questionType, index: i * questionsPerType + index + 1 });
+                });
+            }
+
+            quizContainer.innerHTML = quizHtml;
+        }
+
+        function showAnswers() {
+            const answersContainer = document.getElementById('answers');
+            const resultContainer = document.getElementById('result');
+            answersContainer.innerHTML = '';
+            resultContainer.innerHTML = '';
+            let correctCount = 0;
+            const totalQuestions = userAnswers.length;
+
+            userAnswers.forEach(item => {
+                const selectedOption = document.querySelector(`input[name="q${item.index}"]:checked`);
+                const userAnswer = selectedOption ? selectedOption.value : '未選択';
+
+                const feedbackClass = userAnswer === item.correctAnswer ? 'correct' : 'incorrect';
+                if (userAnswer === item.correctAnswer) correctCount++;
+
+                answersContainer.innerHTML += `<p>問題 ${item.index}: ${item.questionType}の答えは「${item.correctAnswer}」 (${getAnswerRate(item.correctAnswer)}%)。あなたの選択: 「${userAnswer}」 <span class="${feedbackClass}">${userAnswer === item.correctAnswer ? '〇' : '×'}</span> <a href="#" onclick="showQuestion(${item.index})">(質問を表示)</a></p>`;
+
+                // Add feedback to radio buttons
+                const labels = document.querySelectorAll(`input[name="q${item.index}"]`);
+                labels.forEach(label => {
+                    const labelElement = label.parentNode;
+                    if (label.checked) {
+                        labelElement.classList.add(userAnswer === item.correctAnswer ? 'correct-option' : 'incorrect-option');
+                    } else {
+                        labelElement.classList.add(label.value === item.correctAnswer ? 'correct-option' : 'incorrect-option');
+                    }
+                });
+
+                // Update answer stats
+                if (userAnswer === item.correctAnswer) {
+                    answerStats[item.correctAnswer].correct++;
+                }
+                difficultyMap[item.correctAnswer] = (difficultyMap[item.correctAnswer] || 1) + (userAnswer === item.correctAnswer ? 0 : 1);
+            });
+
+            const correctRate = ((correctCount / totalQuestions) * 100).toFixed(2);
+            resultContainer.innerHTML = `得点率: ${correctRate}%`;
+            resultContainer.style.display = 'block';
+            answersContainer.style.display = 'block';
+        }
+
+        function getAnswerRate(answer) {
+            const stats = answerStats[answer] || { total: 1, correct: 0 };
+            return ((stats.correct / stats.total) * 100).toFixed(2);
+        }
+
+        function showQuestion(index) {
+            const questions = document.querySelectorAll('.question');
+            questions.forEach((q, i) => {
+                if (i === index - 1) {
+                    q.style.display = 'block';
+                } else {
+                    q.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', generateQuiz);
+    </script>
+</body>
+</html>
